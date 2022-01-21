@@ -1,16 +1,12 @@
 # Archetypes in java
 
-## Goal
-To create an archetype that can be used to create maven projects using the _maven-archetype-plugin_.
+Example of an archetype with a multi maven project constituted by a springboot application, docker conteinerization of 
+the microservice and the respective helmchart.
 
-Two archetypes are going to be created, a simple module archetype and 
-multi module maven projects.
+Archetype can be found in this [folder.](./springdockerhelm) 
 
-This page explains how to:
-- create a template project
-- generate a new maven project using the archetype
 
-## Create an Archetype
+## How to Create an archetype
 ### Simple module archetype
 Start by creating a generic maven project with a _pom.xml_ file 
 and a the traditional folder structure, that will be used as the new project template.
@@ -95,6 +91,8 @@ Full example can be seen in [template pom file.](./simpleproject/src/main/resour
 Concluded this steps we just need to build the project and that's it
 
 ### Multi module archetype
+
+A multimodule project is quite similar to the simple project the main diference being that each module is described individually in the [archetype-metadata.xml file.](./multiproject/src/main/resources/META-INF/maven/archetype-metadata.xml)
 
 ##Generate a maven project using the archetype
 ````
