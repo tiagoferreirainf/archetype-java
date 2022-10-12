@@ -1,0 +1,171 @@
+:docdir: ../appendices
+:icons: font
+:author: Tiago Ferreira
+:imagesdir: ./images
+:imagesoutdir: ./images
+//embedded images
+:data-uri:
+// empty line
+:blank: pass:[ +]
+// Toc
+:toc: macro
+:toclevels: 3
+:sectnums:
+:sectnumlevels: 3
+// Variables
+:revnumber: 1.2
+:arrow: icon:angle-double-down[]
+:clear: pass:[<hr style="border:0;"/>]
+:box: pass:[<input type="checkbox" style="margin: 0.4em;" />]
+
+:ms_name: Create a Maven Archetypes
+
+image::shared/header.png[]
+
+= {ms_name}
+Author: Tiago Ferreira
+
+v{revnumber}, {docdate}
+
+<<<
+
+.Change Log
+[%header,cols=3*]
+|===
+| Version
+| Date
+| Changes
+
+| 1.0
+| October/2022
+| Initial Version
+
+
+|===
+
+toc::[]
+
+<<<
+
+== Generate archetype project
+
+[source, sh]
+----
+mkdir demoarchetype
+mkdir -p demoarchetype/src/main/resources/archetype-resources
+mkdir -p demoarchetype/src/main/resources/META-INF
+
+cd demoarchetype
+touch pom.xml
+
+cd src/main/resources/META-INF
+mkdir maven
+cd maven
+touch archetype-metadata.xml
+----
+
+=== basic pom file
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+</project>
+----
+
+=== archetype pom file
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.diconinium.tests</groupId>
+    <artifactId>demoarchetype</artifactId>
+    <version>1.0</version>
+
+    <packaging>maven-archetype</packaging>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>3.2.1</version>
+            </extension>
+        </extensions>
+    </build>
+
+</project>
+----
+
+
+=== archetype-metadata file
+
+[source, xml]
+----
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="demoarchetype">
+
+</archetype-descriptor>
+----
+
+=== validate folder structure
+[source, sh]
+----
+mvn package
+----
+
+==  Generate a template draft
+using intellij generate a basic maven module called "templateproject"
+then compile and copy its content to the archetypes-resource folder
+
+
+== Use the archetype
+[source, sh]
+----
+mvn archetype:generate -DarchetypeGroupId=org.diconinium.tests -DarchetypeArtifactId=demoarchetype -DarchetypeVersion=1.0
+----
+
+IMPORTANT: notice that only the pom.xml file is copied
+
+==  Generate a template draft
+configure archetype-metadata to copy and handle and copy the template code when is executed, and regenerate eveything
+
+[source, xml]
+----
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="demoarchetype">
+
+    <fileSets>
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java</directory>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/test/java</directory>
+        </fileSet>
+    </fileSets>
+
+</archetype-descriptor>
+----
+
+== Start Parametrizing the archetype
+
+replace the pom data to have the following parametrization
+[source, xml]
+----
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>${version}</version>
+    <packaging>${packaging}</packaging>
+    <name>${artifactId}</name>
+----

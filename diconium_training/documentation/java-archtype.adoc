@@ -1,0 +1,177 @@
+:docdir: ../appendices
+:icons: font
+:author: Tiago Ferreira
+:imagesdir: ./images
+:imagesoutdir: ./images
+//embedded images
+:data-uri:
+// empty line
+:blank: pass:[ +]
+// Toc
+:toc: macro
+:toclevels: 3
+:sectnums:
+:sectnumlevels: 3
+// Variables
+:revnumber: 1.2
+:arrow: icon:angle-double-down[]
+:clear: pass:[<hr style="border:0;"/>]
+:box: pass:[<input type="checkbox" style="margin: 0.4em;" />]
+
+:ms_name: Maven Archetypes
+
+image::shared/header.png[]
+
+= {ms_name}
+Author: Tiago Ferreira
+
+v{revnumber}, {docdate}
+
+<<<
+
+.Change Log
+[%header,cols=3*]
+|===
+| Version
+| Date
+| Changes
+
+| 1.0
+| October/2022
+| Initial Version
+
+
+|===
+
+toc::[]
+
+<<<
+
+== What is a Maven Archetype
+In a single sentence, an "Archetype is a Maven project templating toolkit."
+
+A Maven archetype is an abstraction of a kind of a project that can be instantiated into a concrete customized Maven project. In short, it's a template project template from which other projects are created.
+
+The main benefit of using archetypes is to standardize project development and to enable developers to easily follow best practices while bootstrapping their projects faster.
+
+
+== Archetype file and folder structure
+
+A maven archetype has the same basic structure that any other maven project. It has however a few differences, that differentiate them from other maven projects, namely, there are no java or resources folder, but instead there is an __archetype-resources__ and __META-INF__ folders that will would all archetype template and configuration (__archetype-metadata.xml__) respectively.
+
+
+[plantuml, format=svg, opts="inline"]
+----
+skinparam Legend {
+	BackgroundColor transparent
+	BorderColor transparent
+}
+legend
+project
+|_ src
+  |_ main
+    |_ resources
+      |_ archetype-resources
+        |_  pom.xml
+        |_ src
+          |_ main
+            |_ java
+              |_ ...
+          |_ test
+            |_ java
+              |_ ...
+      |_ META-INF
+        |_  maven
+          |_  archetype-metadata.xml
+|_ pom.xml
+end legend
+----
+
+
+== Creating a maven archetype project
+Create a maven project with the above project structure.
+
+=== The pom file
+
+The pom file of a maven archetype is very similar to other maven project pom files, the main changes are the packaging type and the extension build plugin, that tells maven that this project is actually an archetype
+
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.diconinium.tests</groupId>
+    <artifactId>demoarchetype</artifactId>
+    <version>1.0</version>
+
+    <packaging>maven-archetype</packaging>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>3.2.1</version>
+            </extension>
+        </extensions>
+    </build>
+
+</project>
+----
+
+=== The archetype-metadata file
+
+[source, xml]
+----
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="demoarchetype">
+
+</archetype-descriptor>
+----
+
+== Templating
+
+The best way to create an initial archetype template is to create a basic draft of the maven project that will be templated. And then add this maven template to the __archetype-resources__ in the maven archetype project.
+The root folder should not be copied only its content.
+
+Then in the archetype-metadata file we need to add a fileset so that the archetype can copy the templates, since by default only the pom.xml is copied.
+
+[source, xml]
+----
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 https://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="demoarchetype">
+
+    <fileSets>
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java</directory>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/test/java</directory>
+        </fileSet>
+    </fileSets>
+
+</archetype-descriptor>
+----
+
+=== Default parameterization of the pom file
+A set of variables are defined by default and can be used to customize the pom file, and we can replace them directly sot that when archetype is used these properties are added automatically
+
+[source, xml]
+----
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>${version}</version>
+    <packaging>${packaging}</packaging>
+    <name>${artifactId}</name>
+----
+
+=== Custom parameterization of the pom file
+
